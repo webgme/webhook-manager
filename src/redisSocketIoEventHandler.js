@@ -2,7 +2,8 @@
  * @author kecso / https://github.com/kecso
  */
 var redis = require("redis"),
-    MSG = require("msgpack-js");
+    MSG = require("msgpack-js"),
+    Q = require('q');
 
 function redisSocketIoEventHandler(options) {
     var client = redis.createClient(options.uri || 'redis://127.0.0.1:6379', {return_buffers: true}),
@@ -11,7 +12,7 @@ function redisSocketIoEventHandler(options) {
             },
         channelPattern = 'socket.io#/#*', // TODO find a pattern to exclude something
         excludedEvents = options.exclude || ['BRANCH_UPDATED'],
-        startCb = [];
+        startDeferred = Q.defer();
 
     client.on('pmessage', function (pattern, channel, buffer) {
         console.log('got message:', channel.toString('utf-8'));
@@ -32,23 +33,12 @@ function redisSocketIoEventHandler(options) {
 
     client.on('psubscribe', function (channel) {
         console.log('subscribed ',channel.toString('utf-8'));
-        var callbacks = startCb,
-            i;
-
-        startCb = [];
-
-        for (i = 0; i < callbacks.length; i += 1) {
-            if (typeof callbacks[i] === 'function') {
-                callbacks[i]();
-            }
-        }
+        startDeferred.resolve();
     });
 
     function start(callback) {
-        startCb.push(callback);
-        if (startCb.length === 1) {
-            client.psubscribe(channelPattern);
-        }
+        client.psubscribe(channelPattern);
+        return startDeferred.promise.nodeify(callback);
     }
 
     function stop() {

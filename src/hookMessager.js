@@ -2,11 +2,11 @@
  * @author kecso / https://github.com/kecso
  */
 var mongodb = require('mongodb'),
-    superagent = require('superagent');
+    superagent = require('superagent'),
+    Q = require('q');
 
 function hookMessager(options) {
-    var startCb = [],
-        db = null,
+    var db = null,
         projectMetadataCollectionId = options.collection || '_projects';
 
     options = options || {};
@@ -41,31 +41,33 @@ function hookMessager(options) {
     }
 
     function start(callback) {
+        var deferred = Q.defer();
         if (db) {
-            callback(null);
-            return;
+            deferred.resolve();
         }
-        startCb.push(callback);
         mongodb.MongoClient.connect(options.uri, {}, function (err, db_) {
-            var callbacks, i;
             if (!err && db_) {
                 db = db_;
-            }
-
-            callbacks = startCb;
-            startCb = [];
-            for (i = 0; i < callbacks.length; i += 1) {
-                if (typeof callbacks[i] === 'function') {
-                    callbacks[i](err);
-                }
+                deferred.resolve();
+            } else {
+                deferred.reject(err || new Error('cannot connect to mongoDB'));
             }
         });
+
+        return deferred.promise.nodeify(callback);
     }
 
-    function stop() {
-        // TODO is there any procedure that should be done here?
-        db = null;
+    function stop(callback) {
+        var deferred = Q.defer();
+        db.close(function (err) {
+            if (err) {
+                deferred.reject(err);
+            } else {
+                deferred.resolve();
+            }
+        });
 
+        return deferred.promise.nodeify(callback);
     }
 
     function send(eventType, eventData) {

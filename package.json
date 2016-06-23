@@ -6,7 +6,8 @@
   "dependencies": {
     "mongodb": "^2.1.18",
     "msgpack-js": "^0.3.0",
-    "redis": "^2.6.1",
+    "q": "^1.4.1",
+    "redis": "2.6.2",
     "superagent": "^2.0.0"
   },
   "devDependencies": {

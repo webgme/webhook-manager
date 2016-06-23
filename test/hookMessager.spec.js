@@ -8,6 +8,7 @@ var testFixture = require('./_globals');
 describe('Webhook Message sender', function () {
     'use strict';
     var expect = testFixture.expect,
+        Q = testFixture.Q,
         mongoUri = 'mongodb://127.0.0.1:27017/hookTestMsg',
         collectionName = 'testHooks',
         db,
@@ -52,8 +53,12 @@ describe('Webhook Message sender', function () {
         });
     });
     after(function (done) {
-        messageSender.stop();
-        db.dropDatabase(done);
+        messageSender.stop()
+            .then(function(){
+                Q.nfcall(db.dropDatabase)
+            })
+            .nodeify(done);
+        // db.dropDatabase(done);
     });
 
     beforeEach(function () {
