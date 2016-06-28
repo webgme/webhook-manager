@@ -27,7 +27,7 @@ var exports = {},
     express = require('express'),
     bodyParser = require('body-parser'),
     mongodb = require('mongodb'),
-    MessageSender = require('../src/hookMessager'),
+    MessageSender = require('../src/hookMessenger'),
     MSG = require("msgpack-js"),
     EventHandler = require('../src/redisSocketIoEventHandler');
 

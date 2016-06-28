@@ -1,3 +1,4 @@
+/*jshint node:true*/
 /**
  * @author kecso / https://github.com/kecso
  */

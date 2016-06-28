@@ -83,7 +83,7 @@ describe('Webhook Message sender', function () {
             done();
         });
 
-        //we send the event to the eventer
+        //we send the event to the eventHandler
         messageSender.send('needsMatch', eventData);
     });
 
@@ -94,7 +94,7 @@ describe('Webhook Message sender', function () {
             throw new Error('non-matching event was fired');
         });
 
-        //we send the event to the eventer
+        //we send the event to the eventHandler
         messageSender.send('noMatch', eventData);
 
         setTimeout(function () {
@@ -109,7 +109,7 @@ describe('Webhook Message sender', function () {
             throw new Error('unknown project fired event');
         });
 
-        //we send the event to the eventer
+        //we send the event to the eventHandler
         messageSender.send('needsMatch', eventData);
 
         setTimeout(function () {
@@ -124,7 +124,7 @@ describe('Webhook Message sender', function () {
             throw new Error('invalid event was fired');
         });
 
-        //we send the event to the eventer
+        //we send the event to the eventHandler
         messageSender.send('needsMatch', eventData);
 
         setTimeout(function () {
@@ -153,7 +153,7 @@ describe('Webhook Message sender', function () {
             }
         });
 
-        //we send the event to the eventer
+        //we send the event to the eventHandler
         messageSender.send('needsMatch', eventData);
 
     });
@@ -179,7 +179,7 @@ describe('Webhook Message sender', function () {
             }
         });
 
-        //we send the event to the eventer
+        //we send the event to the eventHandler
         messageSender.send('notAllMatch', eventData);
 
     });

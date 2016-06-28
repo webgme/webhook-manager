@@ -5,23 +5,31 @@ var mongodb = require('mongodb'),
     superagent = require('superagent'),
     Q = require('q');
 
-function hookMessager(options) {
+function hookMessenger(options) {
     var db = null,
-        projectMetadataCollectionId = options.collection || '_projects';
+        projectMetadataCollectionId = options.collection || '_projects',
+        logger;
+
+    if (options.logger) {
+        logger = options.logger;
+    } else {
+        logger = console;
+        logger.debug = console.log;
+    }
 
     options = options || {};
     options.uri = options.uri || 'mongodb://127.0.0.1:27017/multi';
 
     function getProjectMetaData(projectId, callback) {
         if (db === null) {
-            console.error('No mongoDB connection!!');
+            logger.error('No mongoDB connection at', options.uri);
             callback({});
             return;
         }
 
         db.collection(projectMetadataCollectionId, function (err, collection) {
             if (err || !collection) {
-                console.error('cannot get metadata: ', err ||
+                logger.error('cannot get metadata: ', err ||
                     new Error('unknown collection: ' + projectMetadataCollectionId));
                 callback({});
                 return;
@@ -29,7 +37,7 @@ function hookMessager(options) {
 
             collection.findOne({_id: projectId}, function (err, projectMetaData) {
                 if (err || !projectMetaData) {
-                    console.error('cannot retrieve project\'s metadata: ', err ||
+                    logger.error('cannot retrieve project\'s metadata: ', err ||
                         new Error('unknown projectId: ' + projectId));
                     callback({});
                     return;
@@ -77,7 +85,7 @@ function hookMessager(options) {
             i;
 
         if (!eventData.projectId) {
-            console.info('not project related event receieved: ', eventType);
+            logger.debug('not project related event receieved: ', eventType);
             return;
         }
 
@@ -97,7 +105,7 @@ function hookMessager(options) {
                     };
 
                     superagent.post(hook.url, payload, function (err, result) {
-                        console.log(err, result);
+                        logger.debug(err, result);
                     });
                 }
             }
@@ -112,4 +120,4 @@ function hookMessager(options) {
     };
 }
 
-module.exports = hookMessager;
+module.exports = hookMessenger;
